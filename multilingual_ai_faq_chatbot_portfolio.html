@@ -1,0 +1,346 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .portfolio-wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+  .header-badge { display: inline-block; background: var(--color-background-info); color: var(--color-text-info); font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+  .header-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .header-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+
+  .tab-row { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .tab-btn { padding: 7px 16px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .tab-btn.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+  .tab-btn:hover:not(.active) { background: var(--color-background-secondary); }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Chat Demo */
+  .chat-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .chat-panel { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .chat-header { padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 8px; }
+  .bot-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-text-info); font-weight: 500; flex-shrink: 0; }
+  .chat-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .lang-tag { margin-left: auto; font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .chat-body { padding: 12px; height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .msg { max-width: 85%; }
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+  .bubble { padding: 8px 12px; border-radius: 12px; font-size: 12.5px; line-height: 1.5; }
+  .msg.bot .bubble { background: var(--color-background-secondary); color: var(--color-text-primary); border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: var(--color-text-primary); color: var(--color-background-primary); border-bottom-right-radius: 4px; }
+  .quick-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .quick-btn { font-size: 11px; padding: 4px 8px; border: 0.5px solid var(--color-border-secondary); border-radius: 10px; background: var(--color-background-primary); color: var(--color-text-info); cursor: pointer; transition: all 0.12s; }
+  .quick-btn:hover { background: var(--color-background-info); }
+  .typing { display: flex; gap: 3px; align-items: center; padding: 10px 12px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-secondary); animation: blink 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
+
+  .chat-input-row { padding: 10px 12px; border-top: 0.5px solid var(--color-border-tertiary); display: flex; gap: 6px; }
+  .chat-input-row input { flex: 1; font-size: 12px; padding: 6px 10px; border-radius: 8px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); outline: none; }
+  .send-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; border: none; background: var(--color-text-primary); color: var(--color-background-primary); cursor: pointer; }
+
+  /* FAQ Table */
+  .faq-grid { display: flex; flex-direction: column; gap: 8px; }
+  .faq-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
+  .faq-q { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .faq-category { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; flex-shrink: 0; }
+  .cat-billing { background: #E6F1FB; color: #0C447C; }
+  .cat-tech { background: #EAF3DE; color: #27500A; }
+  .cat-account { background: #FAEEDA; color: #633806; }
+  .cat-shipping { background: #FBEAF0; color: #72243E; }
+  .faq-q-text { font-size: 13px; color: var(--color-text-primary); flex: 1; }
+  .faq-arrow { color: var(--color-text-secondary); font-size: 12px; transition: transform 0.2s; }
+  .faq-a { display: none; padding: 0 16px 12px 16px; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.65; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 10px; }
+  .faq-a.open { display: block; }
+  .faq-arrow.open { transform: rotate(90deg); }
+  .satisfaction { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .satisfaction span { font-size: 11px; color: var(--color-text-secondary); }
+  .sat-btn { font-size: 11px; padding: 3px 10px; border-radius: 10px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); cursor: pointer; }
+  .sat-btn:hover { background: var(--color-background-success); color: var(--color-text-success); }
+
+  /* Scenario flow */
+  .scenario-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .scenario-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .scenario-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .flow-node { display: flex; gap: 10px; align-items: flex-start; }
+  .node-line { display: flex; flex-direction: column; align-items: center; }
+  .node-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .nc-start { background: #E6F1FB; color: #0C447C; }
+  .nc-step { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+  .nc-branch { background: #FAEEDA; color: #633806; }
+  .nc-end-ok { background: #EAF3DE; color: #27500A; }
+  .nc-end-ng { background: #FCEBEB; color: #791F1F; }
+  .node-vline { width: 1px; background: var(--color-border-tertiary); flex: 1; min-height: 16px; margin: 2px 0; }
+  .node-content { flex: 1; padding-bottom: 8px; }
+  .node-label { font-size: 13px; color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px; }
+  .node-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .branch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+  .branch-card { padding: 8px 12px; border-radius: var(--border-radius-md); font-size: 12px; }
+  .branch-yes { background: #EAF3DE; color: #27500A; border: 0.5px solid #C0DD97; }
+  .branch-no { background: #FCEBEB; color: #791F1F; border: 0.5px solid #F7C1C1; }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .stat-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-diff { font-size: 11px; color: var(--color-text-success); margin-top: 2px; }
+
+  .lang-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .lang-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .lang-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+  .lang-table tr:last-child td { border-bottom: none; }
+  .status-pill { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
+  .pill-done { background: #EAF3DE; color: #27500A; }
+  .pill-wip { background: #FAEEDA; color: #633806; }
+  .pill-plan { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .progress-bar { height: 4px; border-radius: 2px; background: var(--color-border-tertiary); margin-top: 3px; }
+  .progress-fill { height: 100%; border-radius: 2px; background: #1D9E75; }
+
+  @media (max-width: 600px) {
+    .chat-demo { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div class="portfolio-wrap">
+  <div class="header-badge">ポートフォリオ制作サンプル</div>
+  <div class="header-title">多言語対応 AI チャットボット FAQ・シナリオ設計</div>
+  <div class="header-sub">GPT-4 × DeepL を活用した顧客サポート自動化ソリューション — EC・SaaS 業種向けデモ</div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab('chat')">チャットデモ</button>
+    <button class="tab-btn" onclick="switchTab('faq')">FAQ コンテンツ</button>
+    <button class="tab-btn" onclick="switchTab('scenario')">シナリオフロー</button>
+    <button class="tab-btn" onclick="switchTab('lang')">多言語対応</button>
+  </div>
+
+  <!-- CHAT DEMO -->
+  <div class="section active" id="sec-chat">
+    <div class="chat-demo">
+      <!-- JA -->
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="bot-avatar">AI</div>
+          <div>
+            <div class="chat-title">サポートBot</div>
+          </div>
+          <div class="lang-tag">日本語</div>
+        </div>
+        <div class="chat-body" id="chat-ja">
+          <div class="msg bot"><div class="bubble">こんにちは！ご質問をお気軽にどうぞ。よくあるお問い合わせは下のボタンからも選べます。</div>
+            <div class="quick-btns">
+              <span class="quick-btn" onclick="sendQ('ja','返金・返品について')">返金・返品</span>
+              <span class="quick-btn" onclick="sendQ('ja','パスワードを忘れた')">パスワード忘れ</span>
+              <span class="quick-btn" onclick="sendQ('ja','配送状況を確認したい')">配送確認</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="input-ja" placeholder="メッセージを入力..." onkeydown="if(event.key==='Enter')sendQ('ja',this.value)" />
+          <button class="send-btn" onclick="sendQ('ja',document.getElementById('input-ja').value)">送信</button>
+        </div>
+      </div>
+      <!-- EN -->
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="bot-avatar">AI</div>
+          <div>
+            <div class="chat-title">Support Bot</div>
+          </div>
+          <div class="lang-tag">English</div>
+        </div>
+        <div class="chat-body" id="chat-en">
+          <div class="msg bot"><div class="bubble">Hello! How can I help you today? You can also choose from common topics below.</div>
+            <div class="quick-btns">
+              <span class="quick-btn" onclick="sendQ('en','Refund & Returns')">Refund & Returns</span>
+              <span class="quick-btn" onclick="sendQ('en','Forgot my password')">Forgot password</span>
+              <span class="quick-btn" onclick="sendQ('en','Track my order')">Track order</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="input-en" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendQ('en',this.value)" />
+          <button class="send-btn" onclick="sendQ('en',document.getElementById('input-en').value)">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section" id="sec-faq">
+    <div class="faq-grid" id="faq-list"></div>
+  </div>
+
+  <!-- SCENARIO -->
+  <div class="section" id="sec-scenario">
+    <div class="scenario-wrap">
+      <div class="scenario-header">
+        <div class="scenario-title">返金・返品シナリオフロー</div>
+        <div class="header-badge" style="margin-bottom:0">複雑問い合わせ対応</div>
+      </div>
+      <div id="flow-nodes"></div>
+    </div>
+  </div>
+
+  <!-- LANG -->
+  <div class="section" id="sec-lang">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">対応言語数</div><div class="stat-value">6</div><div class="stat-diff">+ 中国語追加予定</div></div>
+      <div class="stat-card"><div class="stat-label">FAQ 総数</div><div class="stat-value">142</div><div class="stat-diff">全言語翻訳済み</div></div>
+      <div class="stat-card"><div class="stat-label">自己解決率</div><div class="stat-value">78%</div><div class="stat-diff">↑ 導入前比 +23pt</div></div>
+      <div class="stat-card"><div class="stat-label">平均応答時間</div><div class="stat-value">1.2s</div><div class="stat-diff">↓ 人対応比 96% 削減</div></div>
+    </div>
+    <div class="chat-panel" style="border-radius:var(--border-radius-lg);">
+      <table class="lang-table">
+        <thead><tr><th>言語</th><th>翻訳ツール</th><th>FAQ 数</th><th>進捗</th><th>状態</th></tr></thead>
+        <tbody id="lang-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const faqData = [
+  { cat:'billing', catLabel:'請求・返金', q:'注文後にキャンセルはできますか？', a:'注文確定後24時間以内であればキャンセルが可能です。マイページ→「注文履歴」からお手続きください。発送済みの場合はキャンセルできませんが、商品到着後に返品申請が可能です。' },
+  { cat:'billing', catLabel:'請求・返金', q:'返金はいつ反映されますか？', a:'返品確認後、3〜5営業日以内に原則、元のお支払い方法へ返金いたします。クレジットカードの場合、ご利用明細への反映にさらに数日かかる場合があります。' },
+  { cat:'account', catLabel:'アカウント', q:'パスワードを忘れてしまいました', a:'ログイン画面の「パスワードを忘れた方」をクリックし、登録メールアドレスを入力してください。リセットメールが届きますので、リンクから新しいパスワードを設定できます。メールが届かない場合は迷惑メールフォルダをご確認ください。' },
+  { cat:'account', catLabel:'アカウント', q:'メールアドレスを変更したい', a:'マイページ→「アカウント設定」→「メールアドレス変更」から手続きできます。新しいアドレス宛に確認メールが届きますので、リンクをクリックして変更を完了させてください。' },
+  { cat:'shipping', catLabel:'配送', q:'配送状況を確認する方法は？', a:'発送完了メールに記載の追跡番号を、配送業者のウェブサイトに入力してご確認いただけます。また、マイページ→「注文履歴」からもリアルタイムの配送状況が確認可能です。' },
+  { cat:'tech', catLabel:'技術サポート', q:'アプリが起動しない・クラッシュする', a:'まずアプリを完全に終了し、端末を再起動してください。それでも改善しない場合は、アプリを最新バージョンにアップデートするか、再インストールをお試しください。キャッシュクリアも効果的な場合があります。' },
+];
+
+const langData = [
+  { lang:'日本語', flag:'🇯🇵', tool:'GPT-4 ネイティブ', count:142, pct:100, status:'done' },
+  { lang:'英語', flag:'🇺🇸', tool:'GPT-4 ネイティブ', count:142, pct:100, status:'done' },
+  { lang:'中国語（簡体字）', flag:'🇨🇳', tool:'DeepL + GPT-4 校正', count:98, pct:69, status:'wip' },
+  { lang:'韓国語', flag:'🇰🇷', tool:'DeepL Pro', count:142, pct:100, status:'done' },
+  { lang:'スペイン語', flag:'🇪🇸', tool:'DeepL Pro', count:80, pct:56, status:'wip' },
+  { lang:'フランス語', flag:'🇫🇷', tool:'計画中', count:0, pct:0, status:'plan' },
+];
+
+const flowNodes = [
+  { type:'start', label:'問い合わせ受信', desc:'ユーザーが「返金・返品について」と入力' },
+  { type:'step', label:'ステップ1：注文番号の確認', desc:'「ご注文番号をお教えください」と自動応答し、注文IDを取得' },
+  { type:'branch', label:'ステップ2：返品条件の判定', desc:'購入日・商品カテゴリを確認', yes:'30日以内 → 返品受付', no:'30日超 → 対応不可を案内' },
+  { type:'step', label:'ステップ3：返品方法の案内', desc:'返品ラベルをメールで自動送付。集荷手配の案内を表示' },
+  { type:'branch', label:'ステップ4：返金方法の選択', desc:'ユーザーに希望を確認', yes:'元の支払い方法へ返金', no:'ストアクレジットへ変換' },
+  { type:'end-ok', label:'完了：返金処理を開始', desc:'「3〜5営業日以内に返金します」と通知。チケット自動クローズ' },
+];
+
+const replies = {
+  ja: {
+    '返金・返品について': '返品は購入から30日以内が対象です。\n①注文番号をご確認\n②マイページから「返品申請」\n③返品ラベルをメールでお送りします\n\nご注文番号を教えていただけますか？',
+    'パスワードを忘れた': 'パスワードのリセット手順をご案内します。\n\nログイン画面の「パスワードを忘れた方」をクリックし、登録メールアドレスを入力してください。数分以内にリセットリンクが届きます。\n\nメールが届かない場合は迷惑メールフォルダをご確認ください。',
+    '配送状況を確認したい': '発送完了メールの追跡番号から配送状況を確認できます。\n\nまたはマイページ→「注文履歴」からリアルタイムで確認可能です。\n\nご注文番号をお持ちでしたら教えていただけますか？',
+    default: 'ご質問ありがとうございます。担当オペレーターにおつなぎする前に、もう少し詳しく教えていただけますか？\n\n・お問い合わせの種類（注文・アカウント・商品など）\n・ご注文番号（お持ちの場合）'
+  },
+  en: {
+    'Refund & Returns': 'Returns are accepted within 30 days of purchase.\n\n① Check your order number\n② Submit a return request from My Account\n③ We\'ll email you a prepaid return label\n\nCould you share your order number?',
+    'Forgot my password': 'Here\'s how to reset your password:\n\nClick "Forgot password" on the login page and enter your registered email. You\'ll receive a reset link within a few minutes.\n\nCheck your spam folder if you don\'t see it.',
+    'Track my order': 'You can track your order using the tracking number in your shipping confirmation email.\n\nOr visit My Account → Order History for real-time updates.\n\nDo you have your order number handy?',
+    default: 'Thanks for reaching out! To help you better, could you tell me more about your inquiry?\n\n• Topic (order, account, product, etc.)\n• Order number (if applicable)'
+  }
+};
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('sec-'+tab).classList.add('active');
+}
+
+function addMsg(panelId, role, text) {
+  const body = document.getElementById('chat-'+panelId);
+  const div = document.createElement('div');
+  div.className = 'msg '+role;
+  div.innerHTML = '<div class="bubble">'+text.replace(/\n/g,'<br>')+'</div>';
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function sendQ(lang, q) {
+  if (!q || !q.trim()) return;
+  const inputEl = document.getElementById('input-'+lang);
+  addMsg(lang, 'user', q.trim());
+  if (inputEl) inputEl.value = '';
+  const body = document.getElementById('chat-'+lang);
+  const typing = document.createElement('div');
+  typing.className = 'msg bot';
+  typing.innerHTML = '<div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  body.appendChild(typing);
+  body.scrollTop = body.scrollHeight;
+  setTimeout(() => {
+    typing.remove();
+    const reply = replies[lang][q.trim()] || replies[lang].default;
+    addMsg(lang, 'bot', reply);
+  }, 900);
+}
+
+// Build FAQ
+const faqList = document.getElementById('faq-list');
+faqData.forEach((f, i) => {
+  const cls = {billing:'cat-billing',account:'cat-account',shipping:'cat-shipping',tech:'cat-tech'}[f.cat];
+  const item = document.createElement('div');
+  item.className = 'faq-item';
+  item.innerHTML = `
+    <div class="faq-q" onclick="toggleFaq(${i})">
+      <span class="faq-category ${cls}">${f.catLabel}</span>
+      <span class="faq-q-text">${f.q}</span>
+      <span class="faq-arrow" id="arr-${i}">▶</span>
+    </div>
+    <div class="faq-a" id="faq-a-${i}">
+      ${f.a}
+      <div class="satisfaction">
+        <span>この回答は役に立ちましたか？</span>
+        <button class="sat-btn">はい</button>
+        <button class="sat-btn">いいえ</button>
+      </div>
+    </div>`;
+  faqList.appendChild(item);
+});
+
+function toggleFaq(i) {
+  const a = document.getElementById('faq-a-'+i);
+  const arr = document.getElementById('arr-'+i);
+  const open = a.classList.toggle('open');
+  arr.classList.toggle('open', open);
+}
+
+// Build flow
+const flowDiv = document.getElementById('flow-nodes');
+flowNodes.forEach((n, i) => {
+  const isLast = i === flowNodes.length - 1;
+  const typeMap = { start:'nc-start', step:'nc-step', branch:'nc-branch', 'end-ok':'nc-end-ok' };
+  let contentHtml = `<div class="node-label">${n.label}</div><div class="node-desc">${n.desc}</div>`;
+  if (n.type === 'branch') {
+    contentHtml += `<div class="branch-row"><div class="branch-card branch-yes">✓ ${n.yes}</div><div class="branch-card branch-no">✕ ${n.no}</div></div>`;
+  }
+  flowDiv.innerHTML += `
+    <div class="flow-node">
+      <div class="node-line">
+        <div class="node-circle ${typeMap[n.type]||'nc-step'}">${i+1}</div>
+        ${!isLast ? '<div class="node-vline"></div>' : ''}
+      </div>
+      <div class="node-content">${contentHtml}</div>
+    </div>`;
+});
+
+// Build lang table
+const tbody = document.getElementById('lang-tbody');
+langData.forEach(l => {
+  const pill = l.status==='done' ? 'pill-done' : l.status==='wip' ? 'pill-wip' : 'pill-plan';
+  const pillLabel = l.status==='done' ? '完了' : l.status==='wip' ? '作業中' : '計画中';
+  tbody.innerHTML += `<tr>
+    <td>${l.flag} ${l.lang}</td>
+    <td style="color:var(--color-text-secondary)">${l.tool}</td>
+    <td>${l.count > 0 ? l.count+'件' : '—'}</td>
+    <td style="min-width:100px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:3px">${l.pct}%</div><div class="progress-bar"><div class="progress-fill" style="width:${l.pct}%"></div></div></td>
+    <td><span class="status-pill ${pill}">${pillLabel}</span></td>
+  </tr>`;
+});
+</script>
